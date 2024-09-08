@@ -1,0 +1,235 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Role {
+  id: Int!
+  role: String!
+}
+
+type SurveyQuestionAnswers {
+  id: Int!
+  user_id: Int!
+  survey_id: Int!
+  question_id: Int!
+  answer: String
+  created_at: DateTime!
+  user: User!
+  survey_question: SurveyQuestions!
+  survey: Survey!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type SurveyQuestions {
+  id: Int!
+  survey_id: Int!
+  question: String!
+  options: String
+  option_type: String
+  option_range: Range
+  is_primary: Boolean
+  is_primary_a: Boolean
+  is_primary_b: Boolean
+  created_by: Int!
+  created_at: DateTime!
+  survey: Survey
+}
+
+type Range {
+  min: Float
+  max: Float
+}
+
+type Survey {
+  id: Int!
+  name: String!
+  status: String!
+  image_url: String
+  video_url: String
+  created_by: Int!
+  created_at: DateTime!
+  survey_questions: [SurveyQuestions!]!
+}
+
+type User {
+  id: Int!
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+  status: String!
+  role_id: Int!
+  is_deleted: Int!
+  login_with: String!
+  created_at: DateTime!
+  role: Role!
+}
+
+type CommonResponse {
+  message: String!
+  status: Float!
+  success: Boolean!
+  token: String
+  token_type: String
+  login_with: String
+}
+
+type DataListResponse {
+  totalCount: Float!
+  totalPages: Float!
+  currentPage: Float!
+  data: String
+}
+
+type Query {
+  hello: String!
+  getRoles: [Role!]!
+  getUsers(page: Int! = 1, limit: Int! = 10, search: String, sortBy: String, sortOrder: String = "DESC", filterByRole: String, status: String): DataListResponse!
+  getUserById(id: Int!): User!
+  getUserByEmail(email: String!): User!
+  updateUserStatus(id: Int!, status: String!): User!
+  deleteUser(id: Int!): CommonResponse!
+  getUserDetailsByToken(login_token: String!): String!
+  getSurveys(page: Int! = 1, limit: Int! = 10, search: String, sortBy: String, sortOrder: String = "ASC", filterBy: String, filterValue: String): DataListResponse!
+  getSurveyDetailsById(id: Int!): String!
+  trashSurvey(id: Int!, status: String!): Survey!
+  deleteSurvey(id: Int!): CommonResponse!
+  getSurveyStatusCount(search: String): String!
+  getSurveyQuestions(page: Int! = 1, limit: Int! = 10, search: String, sortBy: String, sortOrder: String = "ASC", filterBy: String, filterValue: String): DataListResponse!
+  getSurveyQuestionDetailsById(id: Int!): SurveyQuestions!
+  deleteSurveyQuestions(ids: [Int!]!): CommonResponse!
+  getSurveyQuestionAnswerDetailsById(id: Int!): SurveyQuestionAnswers!
+}
+
+type Mutation {
+  userLoginWithSocialmedia(userInput: UserInput!): CommonResponse!
+  updateUser(updateUserData: UpdateUserInput!): User!
+  login(loginInput: LoginInput!): CommonResponse!
+  changepasssword(changePasswordInput: ChangePasswordInput!): CommonResponse!
+  createSurvey(createSurveyData: CreateSurveyInput!): Survey!
+  updateSurvey(updateSurveyData: updateSurveyInput!): Survey!
+  addSurveyQuestions(addSurveyQuestionsData: addSurveyQuestionsInput!): SurveyQuestions!
+  updateSurveyQuestions(updateSurveyQuestionsData: updateSurveyQuestionsInput!): SurveyQuestions!
+  saveSurveyQuestionAnswer(surveyQuestionAnswerData: SurveyQuestionAnswerInput!): SurveyQuestionAnswers!
+}
+
+input UserInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String
+  role_id: Int!
+  status: String! = "active"
+  login_with: String!
+}
+
+input UpdateUserInput {
+  id: Int!
+  first_name: String
+  last_name: String
+  email: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input ChangePasswordInput {
+  email: String!
+  old_password: String!
+  password: String!
+}
+
+input CreateSurveyInput {
+  name: String!
+  status: String! = "active"
+
+  """
+  The image file to upload in filename, mimetype, encoding, createReadStream format, or a URL string.
+  """
+  image_url: FileOrString
+
+  """
+  The video file to upload in filename, mimetype, encoding, createReadStream format, or a URL string.
+  """
+  video_url: FileOrString
+  primary_question: SurveyQuestionInput
+  option_a_question: [SurveyQuestionInput!]
+  option_b_question: [SurveyQuestionInput!]
+  survey_questions: [SurveyQuestionInput!]
+  created_by: Float!
+}
+
+"""Can be either an uploaded file or null"""
+scalar FileOrString
+
+input SurveyQuestionInput {
+  id: Float
+  question: String
+  options: String
+  option_type: String
+  option_range: RangeInput
+}
+
+input RangeInput {
+  min: Float
+  max: Float
+}
+
+input updateSurveyInput {
+  name: String!
+  status: String! = "active"
+
+  """
+  The image file to upload in filename, mimetype, encoding, createReadStream format, or a URL string.
+  """
+  image_url: FileOrString
+
+  """
+  The video file to upload in filename, mimetype, encoding, createReadStream format, or a URL string.
+  """
+  video_url: FileOrString
+  primary_question: SurveyQuestionInput
+  option_a_question: [SurveyQuestionInput!]
+  option_b_question: [SurveyQuestionInput!]
+  survey_questions: [SurveyQuestionInput!]
+  created_by: Float!
+  id: Float!
+}
+
+input addSurveyQuestionsInput {
+  survey_id: Float!
+  question: String!
+  options: String
+  option_type: String
+  option_range: RangeInput
+  is_primary: Boolean
+  is_primary_a: Boolean
+  is_primary_b: Boolean
+  created_by: Float!
+}
+
+input updateSurveyQuestionsInput {
+  survey_id: Float!
+  question: String!
+  options: String
+  option_type: String
+  option_range: RangeInput
+  is_primary: Boolean
+  is_primary_a: Boolean
+  is_primary_b: Boolean
+  created_by: Float!
+  id: Float!
+}
+
+input SurveyQuestionAnswerInput {
+  user_id: Float!
+  survey_id: Float!
+  question_id: Float!
+  answer: String!
+}

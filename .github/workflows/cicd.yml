@@ -1,0 +1,48 @@
+name : Deploy Nest.js application
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Create .env file 
+        run: |
+            echo "PORT=${{ secrets.API_PORT }}" >> .env
+            echo "MYSQL_HOST=${{secrets.DB_HOST}}" >> .env
+            echo "MYSQL_USER=${{secrets.DB_USER}}" >> .env
+            echo "MYSQL_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
+            echo "MYSQL_DATABASE=${{secrets.DB_NAME}}" >> .env
+            echo "MYSQL_PORT=${{secrets.DB_PORT}}" >> .env
+            echo "JWT_SECRET=${{secrets.JWT_SECRET}}" >> .env
+            echo "JWT_EXPIRATION=${{secrets.JWT_EXPIRATION}}" >> .env
+      - name: Build Docker image
+        run: docker build -t anujsides/slide-social-api .
+      - name: Login with Dockerhub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Publish docker image to docker hub
+        run: docker push anujsides/slide-social-api:latest
+  
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull anujsides/slide-social-api:latest
+      
+      - name: Remove old Docker image
+        run: |
+          old_image_id=$(docker images -q anujsides/slide-social-api:latest)
+          if [ ! -z "$old_image_id" ]; then
+            docker rmi -f $old_image_id
+          fi
+
+      - name: Delete old container
+        run: docker rm -f  slide-social-api-container
+      - name: Run docker container
+        run: docker run -d -p 3001:3001 --name slide-social-api-container anujsides/slide-social-api
